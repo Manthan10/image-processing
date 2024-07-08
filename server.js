@@ -10,6 +10,10 @@ const app = express();
 
 app.use(express.json());
 
+app.use("/", (req, res) => {
+  res.send("This is Image processor");
+});
+
 app.use("/api", uploadRoute);
 app.use("/api", statusRoute);
 app.use("/api", webhookRoute);
