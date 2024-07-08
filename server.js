@@ -3,8 +3,9 @@ const sequelize = require("./config/database");
 const uploadRoute = require("./api/routes/uploadRoute");
 const statusRoute = require("./api/routes/statusRoute");
 const webhookRoute = require("./api/routes/webhookRoute");
-const processImages = require("./workers/imageProcessingWorker");
+require("dotenv").config();
 
+const port = process.env.PORT || 3000;
 const app = express();
 
 app.use(express.json());
@@ -18,7 +19,7 @@ app.use("/api", webhookRoute);
 sequelize
   .sync()
   .then(() => {
-    app.listen(3000, () => {
+    app.listen(port, () => {
       console.log("Server is running on port 3000");
     });
   })
