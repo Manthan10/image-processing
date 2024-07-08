@@ -30,8 +30,6 @@ const processImages = async () => {
             `../uploads/images/output-${Date.now()}-${path.basename(url)}`
           );
 
-          console.log(outputPath);
-
           await sharp(url).jpeg({ quality: 50 }).toFile(outputPath);
 
           outputUrls.push(outputPath);
