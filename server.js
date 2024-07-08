@@ -10,8 +10,6 @@ const app = express();
 
 app.use(express.json());
 
-// setInterval(processImages, 6000);
-
 app.use("/api", uploadRoute);
 app.use("/api", statusRoute);
 app.use("/api", webhookRoute);
