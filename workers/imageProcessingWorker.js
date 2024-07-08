@@ -1,48 +1,75 @@
-const axios = require("axios");
 const sharp = require("sharp");
-const { Product, ProcessingRequest } = require("../models");
-const { Op } = require("sequelize");
-const fs = require("fs");
+const ProcessingRequest = require("../models/processingRequest");
+const Product = require("../models/product");
 const path = require("path");
+const fs = require("fs");
 
 const processImages = async () => {
-  const pendingRequests = await ProcessingRequest.findAll({
-    where: { status: "pending" },
-  });
-
-  for (const request of pendingRequests) {
-    const products = await Product.findAll({
-      where: { requestId: request.requestId },
+  try {
+    const pendingRequests = await ProcessingRequest.findAll({
+      where: { status: "pending" },
     });
 
-    for (const product of products) {
-      const inputUrls = product.inputImageUrls?.split(",");
-      const outputUrls = [];
-
-      for (const url of inputUrls) {
-        const response = await axios({ url, responseType: "arraybuffer" });
-        const imagePath = path.join(
-          __dirname,
-          `../uploads/${path.basename(url)}`
-        );
-        await fs.promises.writeFile(imagePath, response.data);
-
-        const outputPath = path.join(
-          __dirname,
-          `../uploads/output-${path.basename(url)}`
-        );
-        await sharp(imagePath).jpeg({ quality: 50 }).toFile(outputPath);
-
-        outputUrls.push(outputPath);
-      }
-
-      product.outputImageUrls = outputUrls.join(",");
-      await product.save();
+    if (pendingRequests.length === 0) {
+      return;
     }
 
-    request.status = "completed";
-    await request.save();
+    for (const request of pendingRequests) {
+      const products = await Product.findAll({
+        where: { requestId: request.requestId },
+      });
+
+      for (const product of products) {
+        const inputUrls = product.inputImageUrls?.split(",");
+
+        const outputUrls = [];
+
+        for (const url of inputUrls) {
+          const outputPath = path.join(
+            __dirname,
+            `../uploads/images/output-${Date.now()}-${path.basename(url)}`
+          );
+
+          console.log(outputPath);
+
+          await sharp(url).jpeg({ quality: 50 }).toFile(outputPath);
+
+          outputUrls.push(outputPath);
+        }
+
+        product.outputImageUrls = outputUrls.join(",");
+        await product.save();
+      }
+
+      const csvRows = [];
+      const csvHeader =
+        "Serial Number,Product Name,Input Image Urls,Output Image Urls";
+      csvRows.push(csvHeader);
+
+      for (const product of products) {
+        const row = [
+          product?.id,
+          product?.productName,
+          product?.inputImageUrls,
+          product?.outputImageUrls,
+        ].join(",");
+
+        csvRows.push(row);
+      }
+
+      const csvContent = csvRows.join("\n");
+      const csvPath = path.join(
+        __dirname,
+        `../uploads/output-csv/output-${Date.now()}.csv`
+      );
+      fs.writeFileSync(csvPath, csvContent);
+
+      request.status = "completed";
+      await request.save();
+    }
+  } catch (error) {
+    console.log(error);
   }
 };
 
-setInterval(processImages, 60000); // Run every 60 seconds
+module.exports = processImages;
