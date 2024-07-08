@@ -1,7 +1,8 @@
 const ProcessingRequest = require("../../models/processingRequest");
+const processImages = require("../../workers/imageProcessingWorker");
 
 const handleWebhook = async (req, res) => {
-  const { requestId, status } = req.body;
+  const { requestId } = req.body;
 
   const processingRequest = await ProcessingRequest.findOne({
     where: { requestId },
@@ -11,9 +12,7 @@ const handleWebhook = async (req, res) => {
     return res.status(404).json({ error: "Request not found" });
   }
 
-  processingRequest.status = status;
-  await processingRequest.save();
-
+  await processImages(); // process the images
   res.status(200).json({ message: "Webhook processed successfully" });
 };
 
