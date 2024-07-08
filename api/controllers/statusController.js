@@ -1,4 +1,4 @@
-const ProcessingRequest = require("../models/processingRequest");
+const ProcessingRequest = require("../../models/processingRequest");
 
 const getStatus = async (req, res) => {
   const { requestId } = req.params;
