@@ -2,8 +2,8 @@ const multer = require("multer");
 const csv = require("csv-parser");
 const fs = require("fs");
 const uuid = require("uuid");
-const ProcessingRequest = require("../models/processingRequest");
-const Product = require("../models/product");
+const ProcessingRequest = require("../../models/processingRequest");
+const Product = require("../../models/product");
 const upload = multer({ dest: "uploads/" });
 
 const uploadCSV = async (req, res) => {
