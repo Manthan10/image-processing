@@ -2,12 +2,14 @@ const express = require("express");
 const sequelize = require("./config/database");
 const uploadRoute = require("./api/routes/uploadRoute");
 const statusRoute = require("./api/routes/statusRoute");
+const webhookRoute = require("./api/routes/webhookRoute");
 
 const app = express();
 
 app.use(express.json());
 app.use("/api", uploadRoute);
 app.use("/api", statusRoute);
+app.use("/api", webhookRoute);
 
 sequelize
   .sync()
