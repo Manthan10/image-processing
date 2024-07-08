@@ -16,7 +16,7 @@ const processImages = async () => {
     });
 
     for (const product of products) {
-      const inputUrls = product.inputImageUrls.split(",");
+      const inputUrls = product.inputImageUrls?.split(",");
       const outputUrls = [];
 
       for (const url of inputUrls) {
